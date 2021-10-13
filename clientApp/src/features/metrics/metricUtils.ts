@@ -1,6 +1,5 @@
 import { MetricInterface } from "./metricsSlice";
-import { SharedColors } from '@fluentui/theme';
-
+import { SharedColors } from "@fluentui/theme";
 
 export const getMetricColor = (props: MetricInterface): string => {
   if (props.value) {

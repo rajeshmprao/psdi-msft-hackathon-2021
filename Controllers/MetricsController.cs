@@ -133,11 +133,41 @@ namespace PSDIPortal.Controllers
                 // Pull the user document
                 User existingUserDetails = await this._userProcessor.getUserDetails();
                 List<MetricValue> existingCustomization = existingUserDetails.MetricsCustomization.ToList();
+
                 MetricValue newMetric = new MetricValue();
                 newMetric.Name = metricDetails.Name;
                 newMetric.UpperThreshold = metricDetails.UpperThreshold;
                 newMetric.LowerThreshold = metricDetails.LowerThreshold;
                 existingCustomization.Add(newMetric);
+
+                existingUserDetails.MetricsCustomization = existingCustomization.ToArray();
+                // Add this metrics
+
+                // Replace document
+                await _cosmosDbService.UpdateAsync<User>(existingUserDetails.Id, existingUserDetails, Constants.USERS_CONTAINER);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+        [Route("editMetric")]
+        [HttpPost]
+        public async Task EditMetric([FromBody] MetricValue metricDetails)
+        {
+            try
+            {
+                // Pull the user document
+                User existingUserDetails = await this._userProcessor.getUserDetails();
+                List<MetricValue> existingCustomization = existingUserDetails.MetricsCustomization.ToList();
+
+                MetricValue metricToEdit = existingCustomization.Where(m => m.Name == metricDetails.Name).First();
+                metricToEdit.UpperThreshold = metricDetails.UpperThreshold;
+                metricToEdit.LowerThreshold = metricDetails.LowerThreshold;
+                existingCustomization = existingCustomization.Where(m => m.Name != metricDetails.Name).ToList();
+                existingCustomization.Add(metricToEdit);
+
                 existingUserDetails.MetricsCustomization = existingCustomization.ToArray();
                 // Add this metrics
 

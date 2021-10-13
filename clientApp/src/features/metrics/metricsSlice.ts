@@ -80,6 +80,20 @@ export const addMetric = createAsyncThunk(
     thunkAPI.dispatch(getCustomerMetrics());
   }
 );
+
+export const editMetric = createAsyncThunk(
+  "metrics/editMetric",
+  async (body: MetricInterface, thunkAPI) => {
+    await apiAsync({
+      uri: "/api/metrics/editMetric",
+      method: httpMethods.post,
+      body: body as unknown as Record<string, unknown>,
+    });
+    thunkAPI.dispatch(updateMetricCustomizationPanel({ isOpen: false }));
+    thunkAPI.dispatch(getPortfolioMetrics());
+    thunkAPI.dispatch(getCustomerMetrics());
+  }
+);
 export const removeMetric = createAsyncThunk(
   "metrics/removeMetric",
   async (name: string, thunkAPI) => {
@@ -126,6 +140,9 @@ export const selectUserUnselectedMetrics = (state: RootState): string[] =>
 export const selectMetricCustomizationPanelDetails = (
   state: RootState
 ): MetricCustomizationPanelInterface => state.metrics.metricCustomizationPanel;
+
+export const isNewMetricCustomization = (state: RootState): boolean =>
+  state.metrics.metricCustomizationPanel.metric === null;
 export const selectCustomerMetrics = (
   state: RootState
 ): CustomerMetricInterface[] => state.metrics.customerMetrics;
