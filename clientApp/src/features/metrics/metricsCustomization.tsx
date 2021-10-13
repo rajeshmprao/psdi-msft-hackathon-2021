@@ -7,7 +7,10 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { DropdownInput, TextInput } from "./inputFields";
 import {
   addMetric,
+  editMetric,
+  isNewMetricCustomization,
   selectMetricCustomizationPanelDetails,
+  selectPortfolioMetrics,
   selectUserUnselectedMetrics,
   updateMetricCustomizationPanel,
 } from "./metricsSlice";
@@ -16,13 +19,41 @@ function MetricsCustomization() {
   const dispatch = useAppDispatch();
   const panelDetails = useAppSelector(selectMetricCustomizationPanelDetails);
   const unselectedMetrics = useAppSelector(selectUserUnselectedMetrics);
-  useEffect(() => {
-    console.log("gg");
-    console.log(unselectedMetrics);
-  });
+  const portfolioMetrics = useAppSelector(selectPortfolioMetrics);
+
+  const getPanelHeader = (): string =>
+    panelDetails.metric ? "Edit Metric" : "Add Metric";
+  const getInitialValues = () => {
+    if (!panelDetails.metric) {
+      return {
+        name: "",
+        upperThreshold: "",
+        lowerThreshold: "",
+      };
+    } else {
+      return {
+        name: panelDetails.metric,
+        upperThreshold:
+          portfolioMetrics.find((m) => m.name === panelDetails.metric)
+            ?.upperThreshold || "",
+        lowerThreshold:
+          portfolioMetrics.find((m) => m.name === panelDetails.metric)
+            ?.lowerThreshold || "",
+      };
+    }
+  };
+
+  const getDropdownOptions = () => {
+    if (panelDetails.metric)
+      return [{ key: panelDetails.metric, text: panelDetails.metric }];
+    return unselectedMetrics.map((key) => {
+      return { key, text: key };
+    });
+  };
+
   return (
     <Panel
-      headerText="Add Metric"
+      headerText={getPanelHeader()}
       isOpen={panelDetails.isOpen}
       onDismiss={() =>
         dispatch(updateMetricCustomizationPanel({ isOpen: false }))
@@ -32,11 +63,7 @@ function MetricsCustomization() {
       <Formik
         validateOnChange={false}
         enableReinitialize
-        initialValues={{
-          name: "",
-          upperThreshold: "",
-          lowerThreshold: "",
-        }}
+        initialValues={getInitialValues()}
         initialErrors={{
           name: "",
           upperThreshold: "",
@@ -44,11 +71,25 @@ function MetricsCustomization() {
         }}
         validationSchema={Yup.object({
           name: Yup.string().default("").required("Required"),
-          upperThreshold: Yup.string().default("").required("Required"),
-          lowerThreshold: Yup.string().default("").required("Required"),
+          upperThreshold: Yup.string()
+            .default("")
+            .required("Required")
+            .matches(
+              /^(?!-0?(\.0+)?$)-?(0|[1-9]\d*)?(\.\d+)?(?<=\d)$/,
+              "Provide valid number"
+            ),
+          lowerThreshold: Yup.string()
+            .default("")
+            .required("Required")
+            .matches(
+              /^(?!-0?(\.0+)?$)-?(0|[1-9]\d*)?(\.\d+)?(?<=\d)$/,
+              "Provide valid number"
+            ),
         })}
         onSubmit={async (values, { setSubmitting }) => {
-          dispatch(addMetric(values));
+          //   console.log(values);
+          if (panelDetails.metric) dispatch(editMetric(values));
+          else dispatch(addMetric(values));
         }}
       >
         <Form>
@@ -64,13 +105,17 @@ function MetricsCustomization() {
             <div>
               <DropdownInput
                 required
+                disabled={panelDetails.metric ? true : false}
                 type="select"
                 label="Metric"
                 name="name"
-                placeholder="Select an Option"
-                options={unselectedMetrics.map((key) => {
-                  return { key, text: key };
-                })}
+                defaultSelectedKey={
+                  panelDetails.metric ? panelDetails.metric : undefined
+                }
+                placeholder={
+                  panelDetails.metric ? undefined : "Select an Option"
+                }
+                options={getDropdownOptions()}
               />
               <TextInput
                 required
@@ -87,7 +132,7 @@ function MetricsCustomization() {
                 type="text"
               />
             </div>
-            <PrimaryButton text="Add Metric" type="submit" />
+            <PrimaryButton text={getPanelHeader()} type="submit" />
           </div>
         </Form>
       </Formik>

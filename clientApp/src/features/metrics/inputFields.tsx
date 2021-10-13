@@ -10,7 +10,7 @@ import {
   ITextFieldStyleProps,
   ITextFieldStyles,
 } from "@fluentui/react";
-import React from 'react';
+import React from "react";
 import { useField, useFormikContext } from "formik";
 
 export interface InputPropsInterface {
@@ -21,6 +21,7 @@ export interface InputPropsInterface {
   id?: string;
   required?: boolean;
   readOnly?: boolean;
+  disabled?: boolean;
 }
 export interface TextInputPropsInterface extends InputPropsInterface {
   styles?: IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>;
@@ -33,6 +34,7 @@ export interface TextInputPropsInterface extends InputPropsInterface {
 export interface DropdownInputPropsInterface extends InputPropsInterface {
   styles?: IStyleFunctionOrObject<IDropdownStyleProps, IDropdownStyles>;
   options: IDropdownOption[];
+  defaultSelectedKey?: string;
 }
 
 export const TextInput = ({ label, ...props }: TextInputPropsInterface) => {

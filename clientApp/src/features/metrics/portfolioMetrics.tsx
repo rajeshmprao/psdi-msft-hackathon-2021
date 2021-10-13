@@ -1,8 +1,4 @@
-import {
-  Text,
-  IconButton,
-  IIconProps,
-} from "@fluentui/react";
+import { Text, IconButton, IIconProps } from "@fluentui/react";
 import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import MetricsCustomization from "./MetricsCustomization";

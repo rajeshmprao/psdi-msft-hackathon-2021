@@ -18,7 +18,11 @@ import {
 } from "@fluentui/react";
 import React from "react";
 import { useAppDispatch } from "../../app/hooks";
-import { MetricInterface, removeMetric } from "./metricsSlice";
+import {
+  MetricInterface,
+  removeMetric,
+  updateMetricCustomizationPanel,
+} from "./metricsSlice";
 import { getMetricColor } from "./metricUtils";
 
 const PortfolioMetricsCard = ({
@@ -111,13 +115,17 @@ const PortfolioMetricsCard = ({
       />
     );
   };
-  const getFooter = () => {
+  const getFooter = (metric: string) => {
     const _items: ICommandBarItemProps[] = [
       {
         key: "edit",
         text: "Edit",
         iconProps: { iconName: "Edit" },
-        onClick: () => console.log("Edit"),
+        onClick: () => {
+          dispatch(
+            updateMetricCustomizationPanel({ isOpen: true, metric: metric })
+          );
+        },
       },
     ];
     return <CommandBar items={_items} ariaLabel="Metric Actions" />;
@@ -131,7 +139,7 @@ const PortfolioMetricsCard = ({
         maxHeight: "300px",
       }}
     >
-      <Card header={getHeader(props.name)} footer={getFooter()}>
+      <Card header={getHeader(props.name)} footer={getFooter(props.name)}>
         <p
           style={{
             fontWeight: 700,
