@@ -18,13 +18,18 @@ import {
 } from "@fluentui/react";
 import React from "react";
 import { useAppDispatch } from "../../app/hooks";
-import { MetricInterface, removeMetric } from "./metricsSlice";
+import CustomerMetrics from "./customerMetrics";
+import {
+  CustomerMetricInterface,
+  MetricInterface,
+  removeMetric,
+} from "./metricsSlice";
 import { getMetricColor } from "./metricUtils";
 
-const PortfolioMetricsCard = ({
-  props,
+const CustomerMetricsCard = ({
+  metrics,
 }: {
-  props: MetricInterface;
+  metrics: CustomerMetricInterface;
 }): JSX.Element => {
   const dispatch = useAppDispatch();
   const buttonStyle: IStyleFunctionOrObject<
@@ -104,9 +109,9 @@ const PortfolioMetricsCard = ({
     return (
       <CardStandardHeader
         cardTitle={title}
-        contextProps={{
-          customButton: CustomButton(title),
-        }}
+        // contextProps={{
+        //   customButton: CustomButton(title),
+        // }}
         // subTitle={CustomCounter()}
       />
     );
@@ -128,22 +133,32 @@ const PortfolioMetricsCard = ({
         minWidth: "175px",
         minHeight: "150px",
         maxWidth: "400px",
-        maxHeight: "300px",
+        maxHeight: "100%",
       }}
     >
-      <Card header={getHeader(props.name)} footer={getFooter()}>
-        <p
+      <Card
+        header={getHeader(metrics.customer)}
+        //   footer={getFooter()}
+      >
+        <div
           style={{
-            fontWeight: 700,
-            textAlign: "center",
-            color: getMetricColor(props),
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            gap: "10px 10px",
           }}
         >
-          {props.value}
-        </p>
+          {metrics.metrics.map((m: MetricInterface) => (
+            <div>
+              <span style={{ fontWeight: 700 }}>{m.name}: </span>
+              <span style={{ color: getMetricColor(m) }}>{m.value}</span>
+            </div>
+          ))}
+        </div>
       </Card>
     </div>
   );
 };
 
-export default PortfolioMetricsCard;
+export default CustomerMetricsCard;

@@ -9,6 +9,11 @@ export interface MetricInterface {
   lowerThreshold: string;
 }
 
+export interface CustomerMetricInterface {
+  customer: string;
+  metrics: MetricInterface[];
+}
+
 export interface MetricCustomizationPanelInterface {
   isOpen: boolean;
   metric?: string;
@@ -17,6 +22,7 @@ interface MetricsSliceInterface {
   portfolioMetrics: MetricInterface[];
   allMetrics: string[];
   metricCustomizationPanel: MetricCustomizationPanelInterface;
+  customerMetrics: CustomerMetricInterface[];
 }
 const initialState: MetricsSliceInterface = {
   portfolioMetrics: [],
@@ -25,6 +31,7 @@ const initialState: MetricsSliceInterface = {
     isOpen: false,
     metric: undefined,
   },
+  customerMetrics: [],
 };
 
 export const getPortfolioMetrics = createAsyncThunk(
@@ -32,6 +39,17 @@ export const getPortfolioMetrics = createAsyncThunk(
   async () => {
     const response: MetricInterface[] = await apiAsync({
       uri: "/api/metrics/portfolioMetrics",
+      method: httpMethods.get,
+    });
+    return response;
+  }
+);
+
+export const getCustomerMetrics = createAsyncThunk(
+  "metrics/customerMetrics",
+  async () => {
+    const response: CustomerMetricInterface[] = await apiAsync({
+      uri: "/api/metrics/customerMetrics",
       method: httpMethods.get,
     });
     return response;
@@ -59,6 +77,7 @@ export const addMetric = createAsyncThunk(
     });
     thunkAPI.dispatch(updateMetricCustomizationPanel({ isOpen: false }));
     thunkAPI.dispatch(getPortfolioMetrics());
+    thunkAPI.dispatch(getCustomerMetrics());
   }
 );
 export const removeMetric = createAsyncThunk(
@@ -70,6 +89,7 @@ export const removeMetric = createAsyncThunk(
     });
 
     thunkAPI.dispatch(getPortfolioMetrics());
+    thunkAPI.dispatch(getCustomerMetrics());
   }
 );
 
@@ -91,6 +111,9 @@ export const metricsSlice = createSlice({
     builder.addCase(getAllMetrics.fulfilled, (state, action) => {
       state.allMetrics = action.payload;
     });
+    builder.addCase(getCustomerMetrics.fulfilled, (state, action) => {
+      state.customerMetrics = action.payload;
+    });
   },
 });
 
@@ -103,6 +126,9 @@ export const selectUserUnselectedMetrics = (state: RootState): string[] =>
 export const selectMetricCustomizationPanelDetails = (
   state: RootState
 ): MetricCustomizationPanelInterface => state.metrics.metricCustomizationPanel;
+export const selectCustomerMetrics = (
+  state: RootState
+): CustomerMetricInterface[] => state.metrics.customerMetrics;
 
 export const { updateMetricCustomizationPanel } = metricsSlice.actions;
 

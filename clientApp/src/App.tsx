@@ -1,6 +1,7 @@
 import { Text } from "@fluentui/react";
 import React from "react";
 import Header from "./features/header/header";
+import CustomerMetrics from "./features/metrics/customerMetrics";
 import PortfolioMetrics from "./features/metrics/portfolioMetrics";
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-start",
+          flexWrap: "wrap",
           gap: "15px 0px",
           padding: "20px",
         }}
@@ -24,7 +26,7 @@ function App() {
           Portfolio Health - Green
         </Text>
         <PortfolioMetrics />
-        {/* <CustomerMetrics /> */}
+        <CustomerMetrics />
       </div>
     </>
   );

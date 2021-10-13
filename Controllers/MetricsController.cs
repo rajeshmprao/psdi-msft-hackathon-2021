@@ -62,13 +62,43 @@ namespace PSDIPortal.Controllers
         {
             try
             {
-                // List<string> queryMetrics = new List<string>();
-                // Console.WriteLine(metricNames);
                 string user = HttpContext.Session.GetString("CurrentUser");
+                User currentUserDetails = (await this._cosmosDbService.GetAsyncByQuery<Models.User>($"select * from c where c.upn='{user}'", Constants.USERS_CONTAINER)).First();
+
                 string query = $"SELECT c.customer,Array(SELECT m['name'], m['value'] from c JOIN m in c.metricValues) as metrics FROM c where c.csam='{user}' and c.viewParam='Customer'";
-                Console.WriteLine(query);
-                IEnumerable<CustomerMetricValue> queryResult = (await _cosmosDbService.GetAsyncByQuery<CustomerMetricValue>(query, Constants.METRICS_CONTAINER));
-                return queryResult;
+                IEnumerable<CustomerMetricValue> customerMetricValues = (await _cosmosDbService.GetAsyncByQuery<CustomerMetricValue>(query, Constants.METRICS_CONTAINER));
+                // The final List of CustomerMetricValue which we will return
+                List<CustomerMetricValue> result = new List<CustomerMetricValue>();
+                // Iterate through each customer's metrics
+                foreach (CustomerMetricValue cmv in customerMetricValues)
+                {
+                    // The List of all metrics for the current customer.
+                    List<MetricValue> currentCustomerMetrics = new List<MetricValue>();
+                    // Iterate through each metric of current customer.
+                    foreach (MetricValue mv in cmv.Metrics)
+                    {
+                        // Iterate through each metrics' user customization 
+                        foreach (MetricValue umv in currentUserDetails.MetricsCustomization)
+                        {
+                            // If the customization name matches the current customers current metric, then create a new metricvalue and add it to the list of metrics for current customer
+                            if (mv.Name == umv.Name)
+                            {
+                                MetricValue tempMetricValue = new MetricValue();
+                                tempMetricValue.Name = mv.Name;
+                                tempMetricValue.Value = mv.Value;
+                                tempMetricValue.UpperThreshold = umv.UpperThreshold;
+                                tempMetricValue.LowerThreshold = umv.LowerThreshold;
+                                currentCustomerMetrics.Add(tempMetricValue);
+                            }
+                        }
+                    }
+                    // After iterating through all metrics of current customer, append the list of metrics to the final customer list.
+                    CustomerMetricValue tempCustomerMertricValue = new CustomerMetricValue();
+                    tempCustomerMertricValue.Customer = cmv.Customer;
+                    tempCustomerMertricValue.Metrics = currentCustomerMetrics.ToArray();
+                    result.Add(tempCustomerMertricValue);
+                }
+                return result;
             }
             catch (Exception e)
             {
