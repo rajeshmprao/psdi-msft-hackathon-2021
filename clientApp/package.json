@@ -30,7 +30,7 @@
     "react-dom": "^16.14.0",
     "react-redux": "^7.2.4",
     "react-router-dom": "^5.2.0",
-    "yup": "^0.32.9"
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",
