@@ -21,6 +21,7 @@ import { useAppDispatch } from "../../app/hooks";
 import {
   MetricInterface,
   removeMetric,
+  subscribeMetric,
   updateMetricCustomizationPanel,
 } from "./metricsSlice";
 import { getMetricColor } from "./metricUtils";
@@ -115,7 +116,7 @@ const PortfolioMetricsCard = ({
       />
     );
   };
-  const getFooter = (metric: string) => {
+  const getFooter = (metric: string, subscribe: string) => {
     const _items: ICommandBarItemProps[] = [
       {
         key: "edit",
@@ -127,19 +128,31 @@ const PortfolioMetricsCard = ({
           );
         },
       },
+      {
+        key: "subscribe",
+        text: subscribe == "1" ? "UnSubscribe" : "Subscribe",
+        iconProps: subscribe == "1" ? { iconName: "Unsubscribe"} : {iconName: "Subscribe"},
+        onClick: () => {
+          let subscribestatus : string;
+          subscribe == "1" ? subscribestatus = "0" : subscribestatus = "1"
+          dispatch(
+            subscribeMetric({...props, subscribe : subscribestatus} )
+          )
+        }  
+      }
     ];
     return <CommandBar items={_items} ariaLabel="Metric Actions" />;
   };
   return (
     <div
       style={{
-        minWidth: "175px",
+        minWidth: "250px",
         minHeight: "150px",
         maxWidth: "400px",
         maxHeight: "300px",
       }}
     >
-      <Card header={getHeader(props.name)} footer={getFooter(props.name)}>
+      <Card header={getHeader(props.name)} footer={getFooter(props.name, props.subscribe)}>
         <p
           style={{
             fontWeight: 700,

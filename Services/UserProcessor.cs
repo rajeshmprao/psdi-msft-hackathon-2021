@@ -30,11 +30,13 @@ namespace PSDIPortal
             defaultMetric1.Name = "BurnRate";
             defaultMetric1.LowerThreshold = "30";
             defaultMetric1.UpperThreshold = "70";
+            defaultMetric1.Subscribe = "0";
 
             MetricValue defaultMetric2 = new MetricValue();
             defaultMetric2.Name = "SoldHours";
             defaultMetric2.LowerThreshold = "100";
             defaultMetric2.UpperThreshold = "200";
+            defaultMetric2.Subscribe = "0";
 
             currentUserDefaultMetrics.Add(defaultMetric1);
             currentUserDefaultMetrics.Add(defaultMetric2);

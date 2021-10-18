@@ -16,5 +16,8 @@ namespace PSDIPortal.Models
 
         [JsonProperty(PropertyName = "lowerThreshold")]
         public string LowerThreshold { get; set; }
+
+        [JsonProperty(PropertyName = "subscribe")]
+        public string Subscribe { get; set; }
     }
 }

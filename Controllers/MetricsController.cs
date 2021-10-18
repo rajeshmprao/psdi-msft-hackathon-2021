@@ -42,6 +42,7 @@ namespace PSDIPortal.Controllers
                             temp.Value = mv.Value;
                             temp.UpperThreshold = mc.UpperThreshold;
                             temp.LowerThreshold = mc.LowerThreshold;
+                            temp.Subscribe = mc.Subscribe;
                             result.Add(temp);
                         }
                     }
@@ -88,6 +89,7 @@ namespace PSDIPortal.Controllers
                                 tempMetricValue.Value = mv.Value;
                                 tempMetricValue.UpperThreshold = umv.UpperThreshold;
                                 tempMetricValue.LowerThreshold = umv.LowerThreshold;
+                                tempMetricValue.Subscribe = umv.Subscribe;
                                 currentCustomerMetrics.Add(tempMetricValue);
                             }
                         }
@@ -138,6 +140,7 @@ namespace PSDIPortal.Controllers
                 newMetric.Name = metricDetails.Name;
                 newMetric.UpperThreshold = metricDetails.UpperThreshold;
                 newMetric.LowerThreshold = metricDetails.LowerThreshold;
+                newMetric.Subscribe = metricDetails.Subscribe;
                 existingCustomization.Add(newMetric);
 
                 existingUserDetails.MetricsCustomization = existingCustomization.ToArray();
@@ -192,6 +195,34 @@ namespace PSDIPortal.Controllers
                 List<MetricValue> existingCustomization = existingUserDetails.MetricsCustomization.ToList();
                 existingUserDetails.MetricsCustomization = existingCustomization.Where(m => m.Name != metric).ToArray();
                 // Add this metrics
+                // Replace document
+                await _cosmosDbService.UpdateAsync<User>(existingUserDetails.Id, existingUserDetails, Constants.USERS_CONTAINER);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        [Route("subscribeMetric")]
+        [HttpPost]
+        public async Task SubscribeMetric([FromBody] MetricValue metricDetails)
+        {
+            try
+            {
+                // Pull the user document
+                User existingUserDetails = await this._userProcessor.getUserDetails();
+                List<MetricValue> existingCustomization = existingUserDetails.MetricsCustomization.ToList();
+
+                MetricValue metricToEdit = existingCustomization.Where(m => m.Name == metricDetails.Name).First();
+                metricToEdit.Subscribe = metricDetails.Subscribe;
+                existingCustomization = existingCustomization.Where(m => m.Name != metricDetails.Name).ToList();
+                existingCustomization.Add(metricToEdit);
+
+                existingUserDetails.MetricsCustomization = existingCustomization.ToArray();
+                // Add this metrics
+
                 // Replace document
                 await _cosmosDbService.UpdateAsync<User>(existingUserDetails.Id, existingUserDetails, Constants.USERS_CONTAINER);
             }

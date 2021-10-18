@@ -7,6 +7,7 @@ export interface MetricInterface {
   name: string;
   upperThreshold: string;
   lowerThreshold: string;
+  subscribe: string;
 }
 
 export interface CustomerMetricInterface {
@@ -94,6 +95,20 @@ export const editMetric = createAsyncThunk(
     thunkAPI.dispatch(getCustomerMetrics());
   }
 );
+
+export const subscribeMetric = createAsyncThunk(
+  "metrics/subscribeMetric",
+  async (body: MetricInterface, thunkAPI) => {
+    await apiAsync({
+      uri: "/api/metrics/subscribeMetric",
+      method: httpMethods.post,
+      body: body as unknown as Record<string, unknown>,
+    });
+    thunkAPI.dispatch(getPortfolioMetrics());
+    thunkAPI.dispatch(getCustomerMetrics());
+  }
+);
+
 export const removeMetric = createAsyncThunk(
   "metrics/removeMetric",
   async (name: string, thunkAPI) => {
